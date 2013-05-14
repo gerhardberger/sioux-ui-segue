@@ -1,6 +1,6 @@
 # Sioux UISegue
 
-Push and modal segue for sioux. [demo](http://felix.lovassy.hu/projects/gellert/sioux/switchexample/)
+Push and modal segue for sioux. [demo](http://felix.lovassy.hu/projects/gellert/sioux/segueexample/)
 
 ### Inherits from
 * [Sioux UI](https://github.com/gerhardberger/sioux-ui)
