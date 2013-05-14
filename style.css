@@ -1,0 +1,27 @@
+.ui-window[data-segue="active"], .ui-window[data-segue="left"], .ui-window[data-segue="right"] {
+	-webkit-transition: -webkit-transform ease-in-out 0s;
+}
+
+.ui-window[data-segue="active"] {
+	z-index: 20;
+}
+
+.ui-window[data-segue="left"] {
+	-webkit-transform: translateX(-100%);
+
+	z-index: 10;
+}
+
+.ui-window[data-segue="right"] {
+	-webkit-transform: translateX(100%);
+
+	z-index: 10;
+}
+
+.ui-window[data-segue="modal"] {
+	z-index: 40;
+	
+	background: pink;
+	-webkit-transition: -webkit-transform ease-in-out .4s;	
+	-webkit-transform: translateY(100%);
+}
