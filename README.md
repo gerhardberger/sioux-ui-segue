@@ -1,5 +1,7 @@
 # Sioux UISegue
 
+`npm install sioux-ui-segue`
+
 Push and modal segue for sioux. [demo](http://felix.lovassy.hu/projects/gellert/sioux/segueexample/)
 
 ### Inherits from
