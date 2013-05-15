@@ -34,9 +34,9 @@ var pushWind = function () {
 
 	self.emit('rightWillAppear', self.right);
 	self.active.style.webkitTransitionDuration = self.DURATION;
-	self.active.style.webkitTransform = 'translateX(-100%)';
+	self.active.style.webkitTransform = 'translate3d(-100%, 0, 0)';
 	self.right.style.webkitTransitionDuration = self.DURATION;
-	self.right.style.webkitTransform = 'translateX(0)';
+	self.right.style.webkitTransform = 'translate3d(0, 0, 0)';
 
 	var activeHandler = function (event) {
 		if (event.propertyName !== '-webkit-transform') return;
@@ -77,9 +77,9 @@ var pushUnwind = function () {
 
 	self.emit('leftWillAppear', self.left);
 	self.active.style.webkitTransitionDuration = self.DURATION;
-	self.active.style.webkitTransform = 'translateX(100%)';
+	self.active.style.webkitTransform = 'translate3d(100%, 0, 0)';
 	self.left.style.webkitTransitionDuration = self.DURATION;
-	self.left.style.webkitTransform = 'translateX(0)';
+	self.left.style.webkitTransform = 'translate3d(0, 0, 0)';
 
 	var activeHandler = function (event) {
 		if (event.propertyName !== '-webkit-transform') return;
@@ -115,11 +115,11 @@ var pushUnwind = function () {
 var modalWind = function () {
 	var self = this;
 
-	if (self.modal.style.webkitTransform === 'translateY(0px)' || self.state === 'UNAVAILABLE') return;
+	if (self.modal.style.webkitTransform === 'translate3d(0, 0px, 0)' || self.state === 'UNAVAILABLE') return;
 	self.state = 'UNAVAILABLE';
 
 	self.modal.style.webkitTransitionDuration = self.DURATION;
-	self.modal.style.webkitTransform = 'translateY(0)';
+	self.modal.style.webkitTransform = 'translate3d(0, 0, 0)';
 	self.emit('modalWillAppear', self.modal);
 
 	var modalHandler = function (event) {
@@ -136,11 +136,11 @@ var modalWind = function () {
 var modalUnwind = function () {
 	var self = this;
 
-	if (self.modal.style.webkitTransform === 'translateY(100%)' || self.state === 'UNAVAILABLE') return;
+	if (self.modal.style.webkitTransform === 'translate3d(0, 100%, 0)' || self.state === 'UNAVAILABLE') return;
 	self.state = 'UNAVAILABLE';
 
 	self.modal.style.webkitTransitionDuration = self.DURATION;
-	self.modal.style.webkitTransform = 'translateY(100%)';
+	self.modal.style.webkitTransform = 'translate3d(0, 100%, 0)';
 
 	var modalHandler = function (event) {
 		if (event.propertyName !== '-webkit-transform') return;

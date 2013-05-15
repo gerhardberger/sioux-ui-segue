@@ -1,5 +1,7 @@
 .ui-window[data-segue="active"], .ui-window[data-segue="left"], .ui-window[data-segue="right"] {
 	-webkit-transition: -webkit-transform ease-in-out 0s;
+
+	/*-webkit-transform-style: preserve-3d;*/
 }
 
 .ui-window[data-segue="active"] {
@@ -7,13 +9,13 @@
 }
 
 .ui-window[data-segue="left"] {
-	-webkit-transform: translateX(-100%);
+	-webkit-transform: translate3d(-100%, 0, 0);
 
 	z-index: 10;
 }
 
 .ui-window[data-segue="right"] {
-	-webkit-transform: translateX(100%);
+	-webkit-transform: translate3d(100%, 0, 0);
 
 	z-index: 10;
 }
@@ -23,5 +25,5 @@
 	
 	background: pink;
 	-webkit-transition: -webkit-transform ease-in-out .4s;	
-	-webkit-transform: translateY(100%);
+	-webkit-transform: translate3d(0, 100%, 0);
 }
