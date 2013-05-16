@@ -1,0 +1,50 @@
+<html>
+<head>
+	<title>Test</title>
+
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+
+	<script type="text/javascript" src="./bundle.js"></script>
+
+	<style type="text/css">
+		.ui-window {
+			background-color: #CCC;
+		}
+
+		.next, .previous {
+			background-color: #999;
+		}
+	</style>
+</head>
+<body>
+
+	<div class="screen">
+	
+		<div class="ui-window foo" data-segue="active">
+			<button class="next">NEXT</button>
+			<button class="back">BACK</button>
+
+			<button class="modal">MODAL</button>
+		</div>
+
+		<div class="ui-window bar" data-segue="left">
+			<button class="next">NEXT</button>
+			<h1>PREVIOUS window</h1>
+		</div>
+
+		<div class="ui-window baz" data-segue="right">
+			<button class="back">BACK</button>
+			<h1>NEXT window</h1>
+		</div>
+
+		<div class="ui-window mod" data-segue="modal">
+			<h1>MODAL</h1>
+			<h1>MODAL</h1>
+			<button>Close</button>
+		</div>
+
+	</div>
+
+</body>
+</html>
