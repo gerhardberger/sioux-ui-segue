@@ -10,14 +10,17 @@ window.onload = function () {
 		console.log(left);
 	});
 
-	segue.on('rightPopped', function (left) {
-		console.log(left);
+	segue.on('rightPopped', function (right) {
+		console.log(right);
 	});
 	
 	var activeNext = new UIButton(document.querySelector('.foo .next'));
 	activeNext.on('tap', function () {
 
-		segue.wind();
+		segue.wind()
+		.then(function () {
+			console.log('WINDED');
+		});
 	});
 
 	var prevNext = new UIButton(document.querySelector('.bar .next'));
@@ -29,7 +32,10 @@ window.onload = function () {
 	var activeBack = new UIButton(document.querySelector('.foo .back'));
 	activeBack.on('tap', function () {
 	
-		segue.unwind();
+		segue.unwind()
+		.then(function () {
+			console.log('UNWINDED');
+		});
 	});
 
 	var nextBack = new UIButton(document.querySelector('.baz .back'));
