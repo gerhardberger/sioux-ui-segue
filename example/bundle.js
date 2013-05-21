@@ -11,14 +11,17 @@ window.onload = function () {
 		console.log(left);
 	});
 
-	segue.on('rightPopped', function (left) {
-		console.log(left);
+	segue.on('rightPopped', function (right) {
+		console.log(right);
 	});
 	
 	var activeNext = new UIButton(document.querySelector('.foo .next'));
 	activeNext.on('tap', function () {
 
-		segue.wind();
+		segue.wind()
+		.then(function () {
+			console.log('WINDED');
+		});
 	});
 
 	var prevNext = new UIButton(document.querySelector('.bar .next'));
@@ -30,7 +33,10 @@ window.onload = function () {
 	var activeBack = new UIButton(document.querySelector('.foo .back'));
 	activeBack.on('tap', function () {
 	
-		segue.unwind();
+		segue.unwind()
+		.then(function () {
+			console.log('UNWINDED');
+		});
 	});
 
 	var nextBack = new UIButton(document.querySelector('.baz .back'));
@@ -56,11 +62,15 @@ window.onload = function () {
 	
 };
 },{"../index.js":2,"sioux-ui-button":3}],2:[function(require,module,exports){
-var inherits = require('inherits');
+(function(){var inherits = require('inherits');
 var events = require('events');
 var fs = require('fs');
 var insertCss = require('insert-css');
 var UI = require('sioux-ui');
+
+//var html = fs.readFileSync(__dirname + '/struct.html');
+var css = ".ui-window[data-segue=\"active\"], .ui-window[data-segue=\"left\"], .ui-window[data-segue=\"right\"] {\r\n\t-webkit-transition: -webkit-transform ease-in-out 0s;\r\n\r\n\t/*-webkit-transform-style: preserve-3d;*/\r\n}\r\n\r\n.ui-window[data-segue=\"active\"] {\r\n\tz-index: 20;\r\n}\r\n\r\n.ui-window[data-segue=\"left\"] {\r\n\t-webkit-transform: translate3d(-100%, 0, 0);\r\n\r\n\tz-index: 10;\r\n}\r\n\r\n.ui-window[data-segue=\"right\"] {\r\n\t-webkit-transform: translate3d(100%, 0, 0);\r\n\r\n\tz-index: 10;\r\n}\r\n\r\n.ui-window[data-segue=\"modal\"] {\r\n\tz-index: 40;\r\n\t\r\n\tbackground: pink;\r\n\t-webkit-transition: -webkit-transform ease-in-out .4s;\t\r\n\t-webkit-transform: translate3d(0, 100%, 0);\r\n}";
+insertCss(css);
 
 function Segue (type, element) {
 	this.element = element;
@@ -80,9 +90,6 @@ function Segue (type, element) {
 }
 
 inherits(Segue, UI);
-
-var css = ".ui-window[data-segue=\"active\"], .ui-window[data-segue=\"left\"], .ui-window[data-segue=\"right\"] {\r\n\t-webkit-transition: -webkit-transform ease-in-out 0s;\r\n\r\n\t/*-webkit-transform-style: preserve-3d;*/\r\n}\r\n\r\n.ui-window[data-segue=\"active\"] {\r\n\tz-index: 20;\r\n}\r\n\r\n.ui-window[data-segue=\"left\"] {\r\n\t-webkit-transform: translate3d(-100%, 0, 0);\r\n\r\n\tz-index: 10;\r\n}\r\n\r\n.ui-window[data-segue=\"right\"] {\r\n\t-webkit-transform: translate3d(100%, 0, 0);\r\n\r\n\tz-index: 10;\r\n}\r\n\r\n.ui-window[data-segue=\"modal\"] {\r\n\tz-index: 40;\r\n\t\r\n\tbackground: pink;\r\n\t-webkit-transition: -webkit-transform ease-in-out .4s;\t\r\n\t-webkit-transform: translate3d(0, 100%, 0);\r\n}";
-insertCss(css);
 
 var pushWind = function () {
 	var self = this;
@@ -121,6 +128,9 @@ var pushWind = function () {
 		setTimeout(function () {
 			self.right.setAttribute('data-segue', 'right');
 			self.state = 'AVAILABLE';
+
+			if (self.callback) self.callback.call(self);
+			self.callback = undefined;
 		}, 1);
 		this.removeEventListener('webkitTransitionEnd', rightHandler);
 	};
@@ -163,6 +173,9 @@ var pushUnwind = function () {
 		setTimeout(function () {
 			self.left.setAttribute('data-segue', 'left');
 			self.state = 'AVAILABLE';
+
+			if (self.callback) self.callback.call(self);
+			self.callback = undefined;
 		}, 1);
 
 		this.removeEventListener('webkitTransitionEnd', leftHandler);
@@ -187,6 +200,9 @@ var modalWind = function () {
 		self.state = 'AVAILABLE';
 
 		this.removeEventListener('webkitTransitionEnd', modalHandler);
+
+		if (self.callback) self.callback.call(self);
+		self.callback = undefined;
 	};
 	self.modal.addEventListener('webkitTransitionEnd', modalHandler, false);
 };
@@ -207,6 +223,9 @@ var modalUnwind = function () {
 		self.state = 'AVAILABLE';
 
 		this.removeEventListener('webkitTransitionEnd', modalHandler);
+
+		if (self.callback) self.callback.call(self);
+		self.callback = undefined;
 	};
 	self.modal.addEventListener('webkitTransitionEnd', modalHandler, false);
 };
@@ -218,6 +237,8 @@ Segue.prototype.wind = function () {
 	else if (this.type === 'modal') {
 		modalWind.call(this);
 	}
+
+	return this;
 };
 
 Segue.prototype.unwind = function () {
@@ -227,10 +248,19 @@ Segue.prototype.unwind = function () {
 	else if (this.type === 'modal') {
 		modalUnwind.call(this);	
 	}
+
+	return this;
+};
+
+Segue.prototype.then = function (fn) {
+	this.callback = fn;
+
+	return this;
 };
 
 
 module.exports = Segue;
+})()
 },{"events":4,"fs":5,"inherits":6,"sioux-ui":7,"insert-css":8}],6:[function(require,module,exports){
 module.exports = inherits
 
@@ -262,44 +292,7 @@ function inherits (c, p, proto) {
 //inherits(Child, Parent)
 //new Child
 
-},{}],3:[function(require,module,exports){
-var inherits = require('inherits');
-var fs = require('fs');
-var insertCss = require('insert-css');
-var UI = require('sioux-ui');
-
-function initStates (self) {
-	self.on('touchstart', function (event) {
-		event.preventDefault();
-		self.element.classList.add('active');
-	});
-
-	var endingFn = function (event) {
-		self.element.classList.remove('active');
-	};
-
-	self.on('touchend', endingFn);
-	self.on('touchcancel', endingFn);
-	self.on('touchleave', endingFn);
-}
-
-
-function UIButton (element) {
-	this.element = element;
-	this.spawnEvents();
-
-	initStates(this);
-
-	return this;
-}
-
-inherits(UIButton, UI);
-
-var css = "button, input[type=\"submit\"], input[type=\"button\"], .button {\r\n\tbackground: whiteSmoke;\r\n\tpadding: 8px 14px;\r\n\tcolor: black;\r\n\tbox-shadow: 1px 1px 3px #CCC;\r\n\tborder: none;\r\n\tborder-radius: 2px;\r\n\t-webkit-transition: background 90ms linear;\r\n}\r\n\r\nbutton.active, input[type=\"submit\"].active, input[type=\"button\"].active, .button.active {\r\n\tbackground: rgb(238, 176, 176);\r\n\tcolor: black;\r\n}";
-insertCss(css);
-
-module.exports = UIButton;
-},{"fs":5,"inherits":9,"insert-css":10,"sioux-ui":11}],8:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var inserted = [];
 
 module.exports = function (css) {
@@ -321,7 +314,7 @@ module.exports = function (css) {
 },{}],5:[function(require,module,exports){
 // nothing to see here... no file methods for the browser
 
-},{}],12:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -561,57 +554,44 @@ EventEmitter.prototype.listeners = function(type) {
 };
 
 })(require("__browserify_process"))
-},{"__browserify_process":12}],9:[function(require,module,exports){
-module.exports = inherits
+},{"__browserify_process":9}],3:[function(require,module,exports){
+var inherits = require('inherits');
+var fs = require('fs');
+var insertCss = require('insert-css');
+var UI = require('sioux-ui');
 
-function inherits (c, p, proto) {
-  proto = proto || {}
-  var e = {}
-  ;[c.prototype, proto].forEach(function (s) {
-    Object.getOwnPropertyNames(s).forEach(function (k) {
-      e[k] = Object.getOwnPropertyDescriptor(s, k)
-    })
-  })
-  c.prototype = Object.create(p.prototype, e)
-  c.super = p
+function initStates (self) {
+	self.on('touchstart', function (event) {
+		//event.preventDefault();
+		self.element.classList.add('active');
+	});
+
+	var endingFn = function (event) {
+		self.element.classList.remove('active');
+	};
+
+	self.on('touchend', endingFn);
+	self.on('touchcancel', endingFn);
+	self.on('touchleave', endingFn);
 }
 
-//function Child () {
-//  Child.super.call(this)
-//  console.error([this
-//                ,this.constructor
-//                ,this.constructor === Child
-//                ,this.constructor.super === Parent
-//                ,Object.getPrototypeOf(this) === Child.prototype
-//                ,Object.getPrototypeOf(Object.getPrototypeOf(this))
-//                 === Parent.prototype
-//                ,this instanceof Child
-//                ,this instanceof Parent])
-//}
-//function Parent () {}
-//inherits(Child, Parent)
-//new Child
 
-},{}],10:[function(require,module,exports){
-var inserted = [];
+function UIButton (element) {
+	this.element = element;
+	this.spawnEvents();
 
-module.exports = function (css) {
-    if (inserted.indexOf(css) >= 0) return;
-    inserted.push(css);
-    
-    var elem = document.createElement('style');
-    var text = document.createTextNode(css);
-    elem.appendChild(text);
-    
-    if (document.head.childNodes.length) {
-        document.head.insertBefore(elem, document.head.childNodes[0]);
-    }
-    else {
-        document.head.appendChild(elem);
-    }
-};
+	initStates(this);
 
-},{}],7:[function(require,module,exports){
+	return this;
+}
+
+inherits(UIButton, UI);
+
+var css = "button, input[type=\"submit\"], input[type=\"button\"], .button {\r\n\tfont-family: Verdana, sans-serif;\r\n\tfont-size: 14px;\r\n\tcolor: black;\r\n\r\n\tbackground: whiteSmoke;\r\n\r\n\tpadding: 10px 16px;\r\n\r\n\tbox-shadow: 1px 1px 3px #CCC;\r\n\r\n\tborder: none;\r\n\tborder-radius: 30px;\r\n\t-webkit-transition: -webkit-transform 85ms ease-in-out;\r\n}\r\n\r\nbutton.active, input[type=\"submit\"].active, input[type=\"button\"].active, .button.active {\r\n\t-webkit-transform: scale3d(.92, .92, 0);\r\n}";
+insertCss(css);
+
+module.exports = UIButton;
+},{"fs":5,"insert-css":10,"inherits":11,"sioux-ui":12}],7:[function(require,module,exports){
 var inherits = require('inherits');
 var events = require('events');
 var fs = require('fs');
@@ -719,7 +699,51 @@ UI.prototype.css = function (key, value) {
 };
 
 module.exports = UI;
-},{"events":4,"fs":5,"inherits":6,"insert-css":8}],11:[function(require,module,exports){
+},{"events":4,"fs":5,"inherits":6,"insert-css":8}],10:[function(require,module,exports){
+var inserted = [];
+
+module.exports = function (css) {
+    if (inserted.indexOf(css) >= 0) return;
+    inserted.push(css);
+    
+    var elem = document.createElement('style');
+    var text = document.createTextNode(css);
+    elem.appendChild(text);
+    
+    if (document.head.childNodes.length) {
+        document.head.insertBefore(elem, document.head.childNodes[0]);
+    }
+    else {
+        document.head.appendChild(elem);
+    }
+};
+
+},{}],11:[function(require,module,exports){
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    var TempCtor = function () {}
+    TempCtor.prototype = superCtor.prototype
+    ctor.prototype = new TempCtor()
+    ctor.prototype.constructor = ctor
+  }
+}
+
+},{}],12:[function(require,module,exports){
 var inherits = require('inherits');
 var events = require('events');
 var fs = require('fs');
@@ -746,7 +770,7 @@ function UI (element) {
 
 inherits(UI, events.EventEmitter);
 
-var css = "body {\r\n\tmargin: 0;\r\n}\r\n\r\n.screen {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\r\n\toverflow: hidden;\r\n}\r\n\r\n.ui-window {\r\n\tposition: absolute;\r\n\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\r\n\tdisplay: inline-block;\r\n}";
+var css = "body {\r\n\tmargin: 0;\r\n}\r\n\r\n.screen {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\r\n\toverflow: hidden;\r\n}\r\n\r\n.ui-window {\r\n\tposition: fixed;\r\n\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\r\n\tdisplay: inline-block;\r\n\r\n\toverflow: auto; \r\n\t-webkit-overflow-scrolling: touch;\r\n}";
 insertCss(css);
 
 UI.prototype.spawnEvents = function () {
@@ -827,5 +851,55 @@ UI.prototype.css = function (key, value) {
 };
 
 module.exports = UI;
-},{"events":4,"fs":5,"inherits":9,"insert-css":10}]},{},[1])
+},{"events":4,"fs":5,"inherits":13,"insert-css":14}],13:[function(require,module,exports){
+module.exports = inherits
+
+function inherits (c, p, proto) {
+  proto = proto || {}
+  var e = {}
+  ;[c.prototype, proto].forEach(function (s) {
+    Object.getOwnPropertyNames(s).forEach(function (k) {
+      e[k] = Object.getOwnPropertyDescriptor(s, k)
+    })
+  })
+  c.prototype = Object.create(p.prototype, e)
+  c.super = p
+}
+
+//function Child () {
+//  Child.super.call(this)
+//  console.error([this
+//                ,this.constructor
+//                ,this.constructor === Child
+//                ,this.constructor.super === Parent
+//                ,Object.getPrototypeOf(this) === Child.prototype
+//                ,Object.getPrototypeOf(Object.getPrototypeOf(this))
+//                 === Parent.prototype
+//                ,this instanceof Child
+//                ,this instanceof Parent])
+//}
+//function Parent () {}
+//inherits(Child, Parent)
+//new Child
+
+},{}],14:[function(require,module,exports){
+var inserted = [];
+
+module.exports = function (css) {
+    if (inserted.indexOf(css) >= 0) return;
+    inserted.push(css);
+    
+    var elem = document.createElement('style');
+    var text = document.createTextNode(css);
+    elem.appendChild(text);
+    
+    if (document.head.childNodes.length) {
+        document.head.insertBefore(elem, document.head.childNodes[0]);
+    }
+    else {
+        document.head.appendChild(elem);
+    }
+};
+
+},{}]},{},[1])
 ;
