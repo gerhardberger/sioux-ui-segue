@@ -16,7 +16,10 @@ var segue = new UISegue('push', document.querySelector('.screen'));
 // first argument: type of segue
 // second argument: the element segue is performed in
 
-segue.wind();
+segue.wind()
+  .then(function () {
+    console.log('Winded!')	
+  });
 ```
 
 ### HTML
@@ -46,6 +49,9 @@ If the segue is `push`, the current window in the middle will go to the left and
 
 ##### .unwind()
 If the segue is `push`, the current window in the middle will go to the right and the one on the left will go to the middle. If the segue is `modal`, the modal goes down.
+
+##### .then(callback)
+Chain it to a `.wind()` or `.unwind()`, and it will fire the `callback` function argument when those finish.
 
 ### Events
 * __.on('rightWillAppear', function(rightElement) {})__

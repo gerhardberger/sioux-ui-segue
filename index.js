@@ -4,6 +4,10 @@ var fs = require('fs');
 var insertCss = require('insert-css');
 var UI = require('sioux-ui');
 
+//var html = fs.readFileSync(__dirname + '/struct.html');
+var css = fs.readFileSync(__dirname + '/style.css');
+insertCss(css);
+
 function Segue (type, element) {
 	this.element = element;
 
@@ -22,9 +26,6 @@ function Segue (type, element) {
 }
 
 inherits(Segue, UI);
-
-var css = fs.readFileSync(__dirname + '/style.css');
-insertCss(css);
 
 var pushWind = function () {
 	var self = this;
@@ -63,6 +64,9 @@ var pushWind = function () {
 		setTimeout(function () {
 			self.right.setAttribute('data-segue', 'right');
 			self.state = 'AVAILABLE';
+
+			if (self.callback) self.callback.call(self);
+			self.callback = undefined;
 		}, 1);
 		this.removeEventListener('webkitTransitionEnd', rightHandler);
 	};
@@ -105,6 +109,9 @@ var pushUnwind = function () {
 		setTimeout(function () {
 			self.left.setAttribute('data-segue', 'left');
 			self.state = 'AVAILABLE';
+
+			if (self.callback) self.callback.call(self);
+			self.callback = undefined;
 		}, 1);
 
 		this.removeEventListener('webkitTransitionEnd', leftHandler);
@@ -129,6 +136,9 @@ var modalWind = function () {
 		self.state = 'AVAILABLE';
 
 		this.removeEventListener('webkitTransitionEnd', modalHandler);
+
+		if (self.callback) self.callback.call(self);
+		self.callback = undefined;
 	};
 	self.modal.addEventListener('webkitTransitionEnd', modalHandler, false);
 };
@@ -149,6 +159,9 @@ var modalUnwind = function () {
 		self.state = 'AVAILABLE';
 
 		this.removeEventListener('webkitTransitionEnd', modalHandler);
+
+		if (self.callback) self.callback.call(self);
+		self.callback = undefined;
 	};
 	self.modal.addEventListener('webkitTransitionEnd', modalHandler, false);
 };
@@ -160,6 +173,8 @@ Segue.prototype.wind = function () {
 	else if (this.type === 'modal') {
 		modalWind.call(this);
 	}
+
+	return this;
 };
 
 Segue.prototype.unwind = function () {
@@ -169,6 +184,14 @@ Segue.prototype.unwind = function () {
 	else if (this.type === 'modal') {
 		modalUnwind.call(this);	
 	}
+
+	return this;
+};
+
+Segue.prototype.then = function (fn) {
+	this.callback = fn;
+
+	return this;
 };
 
 

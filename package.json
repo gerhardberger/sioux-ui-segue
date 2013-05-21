@@ -1,6 +1,6 @@
 {
     "name": "sioux-ui-segue",
-    "version": "0.0.1",
+    "version": "0.0.4",
     "description": "Push and modal segue for sioux",
     "main": "index.js",
     "dependencies": {
